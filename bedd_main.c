@@ -88,7 +88,7 @@ int prompt_str(char *buffer, int length, int clear, const char *prompt) {
     printf(BEDD_INVERT " %s " BEDD_NORMAL " %s", prompt, buffer);
 
     printf("\x1B[K");
-    printf("\x1B[%d;%dH", height, pos + strlen(prompt) + 4);
+    printf("\x1B[%d;%ldH", height, pos + strlen(prompt) + 4);
 
     fflush(stdout);
   }
