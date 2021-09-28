@@ -13,7 +13,6 @@ bedd is a tiny tab-based terminal text editor with mouse support, syntax highlig
 - Syntax highlighting, indentation and parentheses closing
 - Clean and tidy user interface
 - Scrollable tree view(closing the editor or opening a new terminal and doing `ls` is too tedious, let's be honest)
-- Automatic offline updates(thanks to cupd!)
 
 ## Keybindings
 
@@ -36,8 +35,7 @@ bedd is a tiny tab-based terminal text editor with mouse support, syntax highlig
 - New file(new tab): `Ctrl+N`
 - Save file: `Ctrl+S`
 - Close file/tab: `Ctrl+Q`
-- Delete file/directory(specify path): `Ctrl+D`
-- New directory: `Ctrl+K`
+- Run command: `Ctrl+E`
 
 - Prev. tab: `Ctrl+Left`
 - Next tab: `Ctrl+Right`
@@ -63,16 +61,23 @@ NOTE: The clipboard actions(copy, cut and paste) all require `xclip` to be insta
 - C++(`.cc`, `.hh`, `.cpp`, `.hpp`, `.cxx`): partial support, C++-specific features missing
 - x86 assembly(`.asm`, `.s`, `.inc`): full support, NASM syntax
 - bash/sh(`.sh`): partial support, has some errors with special cases
+- JavaScript(`.js`): full support
+- JSON(`.json`): full support, uses the JavaScript parser
 
 ## How to build
-
-Thanks to the cupd updating system(check cupd.h), you just have to run the provided binary(./bedd)
-and, if the code has been modified, it will rebuild itself. This will only happen when it's inside
-this directory, and thus if you move it to /usr/bin or just outside this directory, it won't check
-for updates. In the incredibly rare case you don't trust me and my weird binaries, you can rebuild
-it with `make all`, and for the next build you can use `./bedd`
-instead, as recommended.
+Run `make` to build it.
 
 ## License
 
 This project is licensed with the nop license, check LICENSE for more details.
+
+## Forks!
+
+### Forks that remove the python + Java check(good forks):
+
+- [@aa2006's fork](https://github.com/aa2006/bedd)
+- [@kushagra765's fork](https://github.com/kushagra765/bedd) This fork not only removes the check, but also uses the Makefile system, so it's good
+- [@DamieFC's fork](https://github.com/DamieFC/bedd) Hasn't removed the check yet, but his changes to README.md make it look like he will soooooooooooooooooo
+
+### Forks that do NOT remove the python + Java check(bad forks):
+Not a single one? Weird...

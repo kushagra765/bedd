@@ -1,6 +1,3 @@
-#define CUPD_FILE "bedd_main.c"
-#define CUPD_ARGS "-Os -Iinclude"
-
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <termios.h>
@@ -9,7 +6,6 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <bedd.h>
-#include <cupd.h>
 
 struct termios old_termios;
 
@@ -73,6 +69,10 @@ int prompt_str(char *buffer, int length, int clear, const char *prompt) {
       } else if (c == '\x7F' || c == BEDD_CTRL('h')) {
         if (pos) {
           buffer[--pos] = '\0';
+        }
+      } else if (c == '\x1B') {
+        while (!(c >= 'A' && c <= 'Z') && !(c >= 'a' && c <= 'z')) {
+          if (read(STDIN_FILENO, &c, 1) <= 0) break;
         }
       } else if (c >= 32 && c < 127) {
         buffer[pos++] = c;
@@ -167,6 +167,7 @@ int dir_tree(int row, int col, int height, const char *path) {
 
 
 int main(int argc, const char **argv) {
+
   atexit(raw_off);
   raw_on();
 
@@ -189,7 +190,7 @@ int main(int argc, const char **argv) {
 
   char status[1024] = {0};
 
-  printf("\x1B[?47h");
+  printf("\x1B[2J\x1B[H\x1B[?47h");
   printf("\x1B[?1000;1002;1006;1015h");
   printf(BEDD_WHITE);
 
@@ -236,28 +237,18 @@ int main(int argc, const char **argv) {
         }
       } else if (c == BEDD_CTRL('t')) {
         show_tree = 1 - show_tree;
-      } else if (c == BEDD_CTRL('d')) {
+      } else if (c == BEDD_CTRL('e')) {
         char buffer[1024];
 
-        if (prompt_str(buffer, 1024, 1, "path:")) {
+        if (prompt_str(buffer, 1024, 1, "command:")) {
           if (strlen(buffer)) {
-            char command[1280];
-            sprintf(command, "rm -rf %s", buffer);
-
-            system(command);
-            sprintf(status, "| file/directory deleted successfully");
-          }
-        }
-      } else if (c == BEDD_CTRL('k')) {
-        char buffer[1024];
-
-        if (prompt_str(buffer, 1024, 1, "path:")) {
-          if (strlen(buffer)) {
-            char command[1280];
-            sprintf(command, "mkdir -p %s", buffer);
-
-            system(command);
-            sprintf(status, "| directory created successfully");
+            printf("\x1B[2J\x1B[H\r\n" BEDD_NORMAL BEDD_WHITE);
+            raw_off();
+            
+            system(buffer);
+            
+            raw_on();
+            printf("\x1B[2J");
           }
         }
       } else if (c == BEDD_CTRL('z')) {
@@ -353,6 +344,7 @@ int main(int argc, const char **argv) {
           if (strlen(buffer)) {
             if (stat(buffer, &file) < 0) {
               sprintf(status, "| cannot open file: \"%s\"", buffer);
+            } 
             } else {
               tabs = realloc(tabs, (tab_cnt + 1) * sizeof(bedd_t));
               bedd_init(tabs + tab_cnt, buffer);
@@ -509,8 +501,10 @@ int main(int argc, const char **argv) {
                 bedd_left(tabs + tab_pos, 0);
               } else if (seq[1] == 'H') {
                 tabs[tab_pos].col = 0;
+                tabs[tab_pos].sel_col = tabs[tab_pos].col;
               } else if (seq[1] == 'F') {
                 tabs[tab_pos].col = tabs[tab_pos].lines[tabs[tab_pos].row].length;
+                tabs[tab_pos].sel_col = tabs[tab_pos].col;
               } else if (seq[1] == '<') {
                 if (read(STDIN_FILENO, &seq[2], 1) >= 1) {
                   if (seq[2] == '0') {
