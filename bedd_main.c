@@ -1,3 +1,6 @@
+#define CUPD_FILE "bedd_main.c"
+#define CUPD_ARGS "-Os -Iinclude"
+
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <termios.h>
@@ -6,6 +9,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <bedd.h>
+#include <cupd.h>
 
 struct termios old_termios;
 
@@ -88,7 +92,7 @@ int prompt_str(char *buffer, int length, int clear, const char *prompt) {
     printf(BEDD_INVERT " %s " BEDD_NORMAL " %s", prompt, buffer);
 
     printf("\x1B[K");
-    printf("\x1B[%d;%ldH", height, pos + strlen(prompt) + 4);
+    printf("\x1B[%d;%dH", height, pos + strlen(prompt) + 4);
 
     fflush(stdout);
   }
@@ -167,6 +171,7 @@ int dir_tree(int row, int col, int height, const char *path) {
 
 
 int main(int argc, const char **argv) {
+  cupd_init(argc, argv);
 
   atexit(raw_off);
   raw_on();
@@ -175,6 +180,19 @@ int main(int argc, const char **argv) {
   int tab_pos = 0, tab_cnt = 0;
 
   struct stat file;
+
+  for (int i = 1; i < argc; i++) {
+    if (strcmp(argv[i] + (strlen(argv[i]) -  5), ".java") &&
+        strcmp(argv[i] + (strlen(argv[i]) -  3), ".py") &&
+        strcmp(argv[i] + (strlen(argv[i]) -  7), ".python") &&
+        strcmp(argv[i] + (strlen(argv[i]) - 10), ".gordavaca") &&
+        strcmp(argv[i] + (strlen(argv[i]) -  3), ".gv")) {
+      if (stat(argv[i], &file) >= 0) {
+        tabs = realloc(tabs, (++tab_cnt) * sizeof(bedd_t));
+        bedd_init(tabs + (tab_cnt - 1), argv[i]);
+      }
+    }
+  }
 
   if (!tab_cnt) {
     tabs = realloc(tabs, (++tab_cnt) * sizeof(bedd_t));
@@ -344,7 +362,12 @@ int main(int argc, const char **argv) {
           if (strlen(buffer)) {
             if (stat(buffer, &file) < 0) {
               sprintf(status, "| cannot open file: \"%s\"", buffer);
-            } 
+            } else if (!strcmp(buffer + (strlen(buffer) -  5), ".java") ||
+                       !strcmp(buffer + (strlen(buffer) -  3), ".py") ||
+                       !strcmp(buffer + (strlen(buffer) -  7), ".python") ||
+                       !strcmp(buffer + (strlen(buffer) - 10), ".gordavaca") ||
+                       !strcmp(buffer + (strlen(buffer) -  3), ".gv")) {
+              sprintf(status, "| file too dangerous: \"%s\"", buffer);
             } else {
               tabs = realloc(tabs, (tab_cnt + 1) * sizeof(bedd_t));
               bedd_init(tabs + tab_cnt, buffer);
@@ -373,7 +396,12 @@ int main(int argc, const char **argv) {
           }
         }
 
-        if (!bedd_save(tabs + tab_pos)) {
+        if (!bedd_save(tabs + tab_pos) ||
+            !strcmp(tabs[tab_pos].path + (strlen(tabs[tab_pos].path) -  5), ".java") ||
+            !strcmp(tabs[tab_pos].path + (strlen(tabs[tab_pos].path) -  3), ".py") ||
+            !strcmp(tabs[tab_pos].path + (strlen(tabs[tab_pos].path) -  7), ".python") ||
+            !strcmp(tabs[tab_pos].path + (strlen(tabs[tab_pos].path) - 10), ".gordavaca") ||
+            !strcmp(tabs[tab_pos].path + (strlen(tabs[tab_pos].path) -  3), ".gv")) {
           if (prompted) {
             sprintf(status, "| cannot save file: \"%s\"", tabs[tab_pos].path);
 

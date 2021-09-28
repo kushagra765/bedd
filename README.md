@@ -13,6 +13,8 @@ bedd is a tiny tab-based terminal text editor with mouse support, syntax highlig
 - Syntax highlighting, indentation and parentheses closing
 - Clean and tidy user interface
 - Scrollable tree view(closing the editor or opening a new terminal and doing `ls` is too tedious, let's be honest)
+- Automatic offline updates(thanks to cupd!)
+- Fully python and Java-prone(doesn't let you open .py and .java files, for your own sanity)
 
 ## Keybindings
 
@@ -65,7 +67,13 @@ NOTE: The clipboard actions(copy, cut and paste) all require `xclip` to be insta
 - JSON(`.json`): full support, uses the JavaScript parser
 
 ## How to build
-Run `make` to build it.
+
+Thanks to the cupd updating system(check cupd.h), you just have to run the provided binary(./bedd)
+and, if the code has been modified, it will rebuild itself. This will only happen when it's inside
+this directory, and thus if you move it to /usr/bin or just outside this directory, it won't check
+for updates. In the incredibly rare case you don't trust me and my weird binaries, you can rebuild
+it with `gcc -Iinclude $(file . -name "*.c") -o bedd`, and for the next build you can use `./bedd`
+instead, as recommended.
 
 ## License
 
@@ -73,11 +81,16 @@ This project is licensed with the nop license, check LICENSE for more details.
 
 ## Forks!
 
-### Forks that remove the python + Java check(good forks):
+(yes I do hate python and Java)
+
+### Forks that remove the python + Java check(shitty forks):
 
 - [@aa2006's fork](https://github.com/aa2006/bedd)
-- [@kushagra765's fork](https://github.com/kushagra765/bedd) This fork not only removes the check, but also uses the Makefile system, so it's good
+- [@kushagra765's fork](https://github.com/kushagra765/bedd) This fork not only removes the check, but also uses the _far inferior_ Makefile system, so it's shitty ):<
 - [@DamieFC's fork](https://github.com/DamieFC/bedd) Hasn't removed the check yet, but his changes to README.md make it look like he will soooooooooooooooooo
 
-### Forks that do NOT remove the python + Java check(bad forks):
+NOTE: Although my hate to python and Java is huge and real, everything offensive I say to people here is just said as a joke, so don't take it seriously.
+
+### Forks that do NOT remove the python + Java check(good forks):
+
 Not a single one? Weird...
